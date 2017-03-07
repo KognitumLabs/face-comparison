@@ -1,3 +1,9 @@
+# Setup and download models
+
+```
+sh setup.sh
+```
+
 # Install
 
 ```
