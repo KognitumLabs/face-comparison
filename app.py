@@ -1,17 +1,15 @@
 # coding: utf-8
 import time
-import cStringIO as StringIO
 import optparse
 import tornado.wsgi
 import tornado.httpserver
 import logging
 
 from flask import Flask, request
-from flask_restplus import Resource, Api
+from flask_restplus import Resource, Api, fields
 from flask_cors import CORS
 from flask_restful_swagger import swagger
 from comparison import face_detect, compare_images
-from PIL import Image
 from classifier import ImageClassifier
 
 app_name = 'Face comparison'
@@ -28,14 +26,12 @@ def configure_app(app, config=None):
     api.init_app(app)
 
 
-def embed_image_html(image):
-    """Creates an image embedded in HTML base64 format."""
-    image_pil = Image.fromarray((255 * image).astype('uint8'))
-    image_pil = image_pil.resize((256, 256))
-    string_buf = StringIO.StringIO()
-    image_pil.save(string_buf, format='png')
-    data = string_buf.getvalue().encode('base64').replace('\n', '')
-    return 'data:image/png;base64,' + data
+# resource_fields = api.model('Resource', {
+#     'image1': fields.String,
+#     'image2': fields.String,
+#     'threshold': fields.Float,
+#     'detection_type': fields.Boolean
+# })
 
 
 @api.route('/detector')
@@ -44,6 +40,8 @@ def embed_image_html(image):
 @api.doc(params={'threshold': 'Threshold'})
 @api.doc(params={'detection_type': 'Strong detection?'})
 class Comparator(Resource):
+
+    # @api.expect(resource_fields)
     def get(self):
         print("Processing urls: [{}, {}]".format(request.args['image1'],
                                                  request.args['image2']))
@@ -52,7 +50,8 @@ class Comparator(Resource):
         url2 = request.args['image2']
         threshold = request.args.get('threhsold', 0.99)
         detection_type = request.args.get('detection_type')
-        strong_detection = 1 if detection_type else -1
+        print("Detection type: {}".format(detection_type))
+        strong_detection = 1 if not detection_type else -1
         print("Performing strong detection? {}".format(strong_detection == -1))
 
         # Face detection
@@ -72,8 +71,10 @@ class Comparator(Resource):
         print("Face comparison took {:.4f}".format(time.time() - comp_start))
 
         print("Execution took {:.4f}".format(time.time() - start))
-        return {'imageA': {'url': url1, 'is_document': is_document_A},
-                'imageB': {'url': url2, 'is_document': is_document_B},
+        return {'imageA': {'url': url1, 'is_document': is_document_A,
+                           'box': [box1.left(), box1.top(), box1.right(), box1.bottom()]},
+                'imageB': {'url': url2, 'is_document': is_document_B,
+                           'box': [box2.left(), box2.top(), box2.right(), box2.bottom()]},
                 'is_similar': is_similar}
 
 

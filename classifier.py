@@ -56,11 +56,11 @@ class ImageClassifier(object):
             # In addition to the prediction text, we will also produce
             # the length for the progress bar visualization.
             meta = [
-                (p.replace('(', '').replace(')', ''), '%.5f' % scores[i])
-                for i, p in zip(indices, predictions)
+                (nn, p.replace('(', '').replace(')', ''), float(scores[i]))
+                for nn, (i, p) in enumerate(zip(indices, predictions))
             ]
             logging.info('result: %s', str(meta))
-            return (True, meta, '%.3f' % (endtime - starttime))
+            return max(meta, key=lambda x: x[2])
 
         except Exception as err:
             logging.info('Classification error: %s', err)
