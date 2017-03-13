@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+workdir = $(pwd) 
+
 git clone https://github.com/cmusatyalab/openface.git
 cd openface
 python setup.py install
@@ -13,8 +15,6 @@ cd caffe
 git checkout 6d723362f0f7fe1aaba7913ebe51cc59b12c0634
 make all -j4
 make pycaffe
-
-workdir = $(pwd) 
 
 git clone https://github.com/torch/distro.git ~/torch --recursive
 cd ~/torch; bash install-deps;
