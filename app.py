@@ -60,8 +60,8 @@ class Comparator(Resource):
         print("Detection took {:.4f}".format(time.time() - start))
         # Document classification
         class_start = time.time()
-        is_document1 = app.document_classifier.classify_image(image1)
-        is_document2 = app.document_classifier.classify_image(image2)
+        is_document1 = app.document_classifier.classify_url(url1)
+        is_document2 = app.document_classifier.classify_url(url2)
         print("Classification took {:.4f}".format(time.time() - class_start))
 
         # image comparison

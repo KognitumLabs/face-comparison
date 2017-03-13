@@ -4,7 +4,8 @@ import caffe
 import logging
 import numpy as np
 import pandas as pd
-import time
+import urllib
+import cStringIO as StringIO
 
 
 class ImageClassifier(object):
@@ -46,18 +47,15 @@ class ImageClassifier(object):
 
     def classify_image(self, image):
         try:
-            starttime = time.time()
             scores = self.net.predict([image], oversample=True).flatten()
-            endtime = time.time()
-
             indices = (-scores).argsort()[:5]
             predictions = self.labels[indices]
 
             # In addition to the prediction text, we will also produce
             # the length for the progress bar visualization.
             meta = [
-                (nn, p.replace('(', '').replace(')', ''), float(scores[i]))
-                for nn, (i, p) in enumerate(zip(indices, predictions))
+                (i, p.replace('(', '').replace(')', ''), float(scores[i]))
+                for(i, p) in zip(indices, predictions)
             ]
             logging.info('result: %s', str(meta))
             return max(meta, key=lambda x: x[2])
@@ -66,3 +64,16 @@ class ImageClassifier(object):
             logging.info('Classification error: %s', err)
             return (False, 'Something went wrong when classifying the '
                            'image. Maybe try another one?')
+
+    def classify_url(self, url):
+        try:
+            string_buffer = StringIO.StringIO(urllib.urlopen(url).read())
+            image = caffe.io.load_image(string_buffer)
+
+        except Exception as err:
+            # For any exception we encounter in reading the image, we will just
+            # not continue.
+            logging.info('URL Image open error: %s', err)
+
+        logging.info('Image: %s', url)
+        return self.classify_image(image)
