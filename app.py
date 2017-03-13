@@ -60,8 +60,8 @@ class Comparator(Resource):
         print("Detection took {:.4f}".format(time.time() - start))
         # Document classification
         class_start = time.time()
-        is_document_A = app.document_classifier.classify_image(image1)
-        is_document_B = app.document_classifier.classify_image(image2)
+        is_document1 = app.document_classifier.classify_image(image1)
+        is_document2 = app.document_classifier.classify_image(image2)
         print("Classification took {:.4f}".format(time.time() - class_start))
 
         # image comparison
@@ -71,9 +71,9 @@ class Comparator(Resource):
         print("Face comparison took {:.4f}".format(time.time() - comp_start))
 
         print("Execution took {:.4f}".format(time.time() - start))
-        return {'imageA': {'url': url1, 'is_document': is_document_A,
+        return {'image1': {'url': url1, 'is_document': is_document1,
                            'box': [box1.left(), box1.top(), box1.right(), box1.bottom()]},
-                'imageB': {'url': url2, 'is_document': is_document_B,
+                'image2': {'url': url2, 'is_document': is_document2,
                            'box': [box2.left(), box2.top(), box2.right(), box2.bottom()]},
                 'is_similar': is_similar}
 
