@@ -26,14 +26,6 @@ def configure_app(app, config=None):
     api.init_app(app)
 
 
-# resource_fields = api.model('Resource', {
-#     'image1': fields.String,
-#     'image2': fields.String,
-#     'threshold': fields.Float,
-#     'detection_type': fields.Boolean
-# })
-
-
 @api.route('/detector')
 @api.doc(params={'image1': 'Image 1 url'})
 @api.doc(params={'image2': 'Image 2 url'})
@@ -60,8 +52,11 @@ class Comparator(Resource):
         print("Detection took {:.4f}".format(time.time() - start))
         # Document classification
         class_start = time.time()
-        is_document1 = app.document_classifier.classify_url(url1)
-        is_document2 = app.document_classifier.classify_url(url2)
+        # is_document1 = app.document_classifier.classify_url(url1)
+        # is_document2 = app.document_classifier.classify_url(url2)
+        is_document1 = app.document_classifier.classify_image(image1 / 255.)
+        is_document2 = app.document_classifier.classify_image(image2 / 255.)
+
         print("Classification took {:.4f}".format(time.time() - class_start))
 
         # image comparison
@@ -109,7 +104,7 @@ def start_from_terminal(app):
     parser.add_option(
         '-g', '--gpu',
         help="use gpu mode",
-        action='store_true', default=False)
+        action='store_true', default=True)
 
     opts, args = parser.parse_args()
     ImageClassifier.default_args.update({'gpu_mode': opts.gpu})
