@@ -14,7 +14,9 @@ def download_image(url):
     resp = urllib.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    if len(image.shape) > 2 and image.shape[2] == 4:
+        image = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image
 
 
